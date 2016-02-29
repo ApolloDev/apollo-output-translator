@@ -2,7 +2,7 @@ import pandas as pd
 import h5py
 
 def hdf5_to_dataframe(filename):
-    hdf5_file = h5py.File('output.allegheny.county_age.race.gender.location.hdf5', 'r')
+    hdf5_file = h5py.File(filename, 'r')
 
     dataset = list(hdf5_file.keys())[0]
     hdf5_file.close()
