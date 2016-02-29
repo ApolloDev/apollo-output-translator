@@ -1,7 +1,7 @@
 import base_output_translator
 import pandas as pd
 import csv
-import h5py
+import os
 import getopt, sys
 
 
@@ -13,14 +13,16 @@ def main(argv):
       print('test.py -i <inputfile>')
     for opt, arg in opts:
         if opt == '-h':
-            print('test.py -i <inputfile>')
+            print('test.py -i <inputfile> -o <outputlocation>')
             sys.exit()
         elif opt in ("-i", "--ifile"):
             filename = arg
+        elif opt in("-o", "--olocation"):
+            output_location = arg
 
-    translate_output(filename)
+    translate_output(filename, output_location)
 
-def translate_output(filename):
+def translate_output(filename, output_location):
     # age,gender,race,location,simulator_time,infection_state,disease_state,count
     df = base_output_translator.hdf5_to_dataframe(filename)
     df.to_csv('hdf5.csv', encoding='utf-8')
@@ -118,10 +120,10 @@ def translate_output(filename):
                 print(row)
 
     print("Processing complete")
-
+    os.remove("hdf5.csv")
     dataFrame = pd.DataFrame(data)
     print(dataFrame.shape)
-    dataFrame.to_hdf('modifiedOutput_compressed.h5','df',format='table',mode='w', complevel=9, complib='zlib')
+    dataFrame.to_hdf(output_location+'modifiedOutput_compressed.h5','df',format='table',mode='w', complevel=9, complib='zlib')
     print("Modified hdf5 file created")
 
     # hdf5_file = h5py.File('modifiedOutput_compressed.h5', 'r')
