@@ -8,7 +8,7 @@ import getopt, sys
 def main(argv):
     filename = ''
     try:
-      opts, args = getopt.getopt(argv,"hi:o:",["ifile="])
+      opts, args = getopt.getopt(argv,"hi:o:t:",["ifile="])
     except getopt.GetoptError:
       print('test.py -i <inputfile>')
     for opt, arg in opts:
@@ -19,13 +19,15 @@ def main(argv):
             filename = arg
         elif opt in("-o", "--olocation"):
             output_location = arg
+        elif opt in("-t", "--tempdir"):
+            temp_file = arg
 
-    translate_output(filename, output_location)
+    translate_output(filename, output_location, temp_file)
 
-def translate_output(filename, output_location):
+def translate_output(filename, output_location, temp_file):
     # age,gender,race,location,simulator_time,infection_state,disease_state,count
     df = base_output_translator.hdf5_to_dataframe(filename)
-    df.to_csv('hdf5.csv', encoding='utf-8')
+    df.to_csv(temp_file, encoding='utf-8')
 
     data = {}
     data.setdefault('age', [])
@@ -39,7 +41,7 @@ def translate_output(filename, output_location):
 
     print("Beginning processing")
     i = 0
-    with open('hdf5.csv', newline='') as f:
+    with open(temp_file, newline='') as f:
         reader = csv.reader(f)
         for row in reader:
             if(i!=0):
@@ -120,7 +122,7 @@ def translate_output(filename, output_location):
                 print(row)
 
     print("Processing complete")
-    os.remove("hdf5.csv")
+    os.remove(temp_file)
     dataFrame = pd.DataFrame(data)
     print(dataFrame.shape)
     dataFrame.to_hdf(output_location+'modifiedOutput_compressed.h5','df',format='table',mode='w', complevel=9, complib='zlib')
